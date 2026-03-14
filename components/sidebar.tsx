@@ -101,7 +101,7 @@ export function Sidebar({
                   </div>
                   <span className="truncate flex-1 text-left font-semibold">{col.name}</span>
                   {col.is_public && (
-                    <Share2 className="w-3 h-3 opacity-40 group-hover:opacity-100" />
+                    <Share2 className="w-3 h-3 opacity-100 lg:opacity-40 lg:group-hover:opacity-100" />
                   )}
                 </button>
               ))
@@ -141,7 +141,7 @@ export function Sidebar({
                       e.stopPropagation()
                       onTagDelete(tag.id)
                     }}
-                    className="opacity-0 lg:group-hover:opacity-100 p-1.5 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
+                    className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     type="button"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

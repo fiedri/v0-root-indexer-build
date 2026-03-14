@@ -145,7 +145,7 @@ export function EditCollectionDialog({
               type="button" 
               variant="ghost" 
               size="icon" 
-              className="text-destructive hover:bg-destructive/10"
+              className="text-red-400 hover:text-red-600 hover:bg-red-50"
               onClick={handleDelete}
               disabled={isDeleting}
             >

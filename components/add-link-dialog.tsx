@@ -139,8 +139,8 @@ export function AddLinkDialog({ tags, collections, onAddLink, onCreateTag, trigg
 
       await onAddLink({
         url: metadata.url,
-        title: isEditMode ? editedTitle : metadata.title,
-        description: isEditMode ? editedDescription : metadata.description,
+        title: editedTitle,
+        description: editedDescription,
         tagIds: finalTagIds,
         collectionIds: selectedCollectionIds,
         favicon_url: metadata.favicon,
@@ -269,7 +269,7 @@ export function AddLinkDialog({ tags, collections, onAddLink, onCreateTag, trigg
                           />
                         ) : (
                           <h3 className="font-semibold text-sm leading-tight line-clamp-2">
-                            {metadata.title}
+                            {editedTitle || metadata.title}
                           </h3>
                         )}
                         <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">
@@ -296,9 +296,9 @@ export function AddLinkDialog({ tags, collections, onAddLink, onCreateTag, trigg
                       className="text-sm min-h-[60px] resize-none"
                     />
                   ) : (
-                    currentDescription && (
+                    editedDescription && (
                       <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {currentDescription}
+                        {editedDescription}
                       </p>
                     )
                   )}

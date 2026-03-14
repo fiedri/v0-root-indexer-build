@@ -43,7 +43,7 @@ export function LinkCard({ link, onDelete, onTagClick, showActions = true }: Lin
                 className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1 flex items-center gap-1.5"
               >
                 <span className="truncate">{link.title}</span>
-                <ExternalLink className="w-3 h-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ExternalLink className="w-3 h-3 flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity" />
               </a>
               <p className="text-sm text-muted-foreground truncate mt-0.5">
                 {hostname}
@@ -74,7 +74,7 @@ export function LinkCard({ link, onDelete, onTagClick, showActions = true }: Lin
             <Button
               variant="ghost"
               size="icon"
-              className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+              className="flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 hover:bg-red-50"
               onClick={() => onDelete(link.id)}
             >
               <Trash2 className="w-4 h-4" />
