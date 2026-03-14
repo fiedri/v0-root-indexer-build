@@ -9,7 +9,6 @@ Un "Segundo Cerebro" minimalista para desarrolladores, enfocado en la indexació
 - **Frontend**: Next.js 16 (App Router) + TypeScript.
 - **Backend**: Supabase (PostgreSQL + Auth + RLS).
 - **Estilo**: Tailwind CSS (Mobile-First) + Shadcn/UI.
-- **Branding Mandatorio**: El footer "Developed by Friedrich Ruiz" debe aparecer en: Landing Page, Login/Sign-up, y Vistas Públicas de Roadmaps. **NO** debe aparecer en el Dashboard privado.
 
 ## 📊 Esquema de Base de Datos
 1.  **`links`**: Almacena URLs, títulos, descripciones y favicons. Posee RLS vinculado a `user_id`.

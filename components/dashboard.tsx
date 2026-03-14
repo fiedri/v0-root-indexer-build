@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import useSWR, { mutate } from "swr"
-import { Link2, FolderOpen, Share2, Check, ExternalLink, Menu, Plus, Globe, Lock } from "lucide-react"
+import { Link2, FolderOpen, Share2, Check, ExternalLink, Menu, Plus, Globe, Lock, FolderPlus } from "lucide-react"
 import { LinkCard } from "./link-card"
 import { AddLinkDialog } from "./add-link-dialog"
 import { AddCollectionDialog } from "./add-collection-dialog"
@@ -14,7 +14,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import { useIsMobile } from "@/hooks/use-mobile"
 import type { Link, Tag, Collection } from "@/lib/types"
 
 interface DashboardProps {
@@ -24,6 +31,7 @@ interface DashboardProps {
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 export function Dashboard({ userEmail }: DashboardProps) {
+  const isMobile = useIsMobile()
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -261,26 +269,69 @@ export function Dashboard({ userEmail }: DashboardProps) {
                   </Button>
                 )}
                 
-                <div className="hidden sm:block">
-                  <AddCollectionDialog
-                    links={allLinks}
-                    tags={tags}
-                    onAddCollection={handleAddCollection}
-                  />
-                </div>
+                {!isMobile && (
+                  <div className="hidden sm:block">
+                    <AddCollectionDialog
+                      links={allLinks}
+                      tags={tags}
+                      onAddCollection={handleAddCollection}
+                    />
+                  </div>
+                )}
 
-                <AddLinkDialog
-                  tags={tags}
-                  collections={collections}
-                  onAddLink={handleAddLink}
-                  onCreateTag={handleCreateTag}
-                  trigger={
-                    <Button size="sm" className="h-9 px-2 sm:px-4 shadow-sm">
-                      <Plus className="w-4 h-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Add Link</span>
-                    </Button>
-                  }
-                />
+                {isMobile ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" className="h-9 px-2 shadow-sm">
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-background border-border shadow-xl p-1">
+                      <AddLinkDialog
+                        tags={tags}
+                        collections={collections}
+                        onAddLink={handleAddLink}
+                        onCreateTag={handleCreateTag}
+                        trigger={
+                          <DropdownMenuItem 
+                            onSelect={(e) => e.preventDefault()} 
+                            className="gap-2 cursor-pointer focus:bg-accent focus:text-accent-foreground py-2.5 px-3 rounded-md transition-colors"
+                          >
+                            <Plus className="w-4 h-4 text-primary" />
+                            <span className="font-medium text-sm">Add Link</span>
+                          </DropdownMenuItem>
+                        }
+                      />
+                      <AddCollectionDialog
+                        links={allLinks}
+                        tags={tags}
+                        onAddCollection={handleAddCollection}
+                        trigger={
+                          <DropdownMenuItem 
+                            onSelect={(e) => e.preventDefault()} 
+                            className="gap-2 cursor-pointer focus:bg-accent focus:text-accent-foreground py-2.5 px-3 rounded-md transition-colors"
+                          >
+                            <FolderPlus className="w-4 h-4 text-primary" />
+                            <span className="font-medium text-sm">New Collection</span>
+                          </DropdownMenuItem>
+                        }
+                      />
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <AddLinkDialog
+                    tags={tags}
+                    collections={collections}
+                    onAddLink={handleAddLink}
+                    onCreateTag={handleCreateTag}
+                    trigger={
+                      <Button size="sm" className="h-9 px-2 sm:px-4 shadow-sm">
+                        <Plus className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Add Link</span>
+                      </Button>
+                    }
+                  />
+                )}
               </div>
 
               <UserMenu email={userEmail} />

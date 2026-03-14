@@ -42,9 +42,10 @@ interface AddCollectionDialogProps {
   links: LinkType[]
   tags: Tag[]
   onAddCollection: (data: z.infer<typeof formSchema>) => Promise<void>
+  trigger?: React.ReactNode
 }
 
-export function AddCollectionDialog({ links, tags, onAddCollection }: AddCollectionDialogProps) {
+export function AddCollectionDialog({ links, tags, onAddCollection, trigger }: AddCollectionDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [linkSearch, setLinkSearch] = useState("")
@@ -62,13 +63,13 @@ export function AddCollectionDialog({ links, tags, onAddCollection }: AddCollect
 
   const filteredLinks = useMemo(() => {
     return links.filter(link => {
-      const matchesSearch = !linkSearch || 
+      const matchesSearch = !linkSearch ||
         link.title.toLowerCase().includes(linkSearch.toLowerCase()) ||
         link.url.toLowerCase().includes(linkSearch.toLowerCase())
-      
-      const matchesTag = !selectedTagId || 
+
+      const matchesTag = !selectedTagId ||
         link.tags?.some(t => t.id === selectedTagId)
-        
+
       return matchesSearch && matchesTag
     })
   }, [links, linkSearch, selectedTagId])
@@ -98,12 +99,13 @@ export function AddCollectionDialog({ links, tags, onAddCollection }: AddCollect
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <FolderPlus className="w-4 h-4" />
-          <span>New Collection</span>
-        </Button>
-      </DialogTrigger>
-      
+        {trigger || (
+          <Button variant="outline" size="sm" className="gap-2">
+            <FolderPlus className="w-4 h-4" />
+            <span>New Collection</span>
+          </Button>
+        )}
+      </DialogTrigger>      
       <DialogContent className="max-w-[95vw] sm:max-w-[500px] max-h-[85vh] flex flex-col p-0 overflow-hidden box-border shadow-2xl">
         <DialogHeader className="p-5 pb-3 border-b bg-background shrink-0">
           <DialogTitle className="text-lg font-bold">Create Collection</DialogTitle>
