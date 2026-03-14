@@ -5,6 +5,7 @@ import useSWR, { mutate } from "swr"
 import { Link2, FolderOpen, Share2, Check, ExternalLink, Menu, Plus, Globe, Lock, FolderPlus } from "lucide-react"
 import { LinkCard } from "./link-card"
 import { AddLinkDialog } from "./add-link-dialog"
+import { EditLinkDialog } from "./edit-link-dialog"
 import { AddCollectionDialog } from "./add-collection-dialog"
 import { EditCollectionDialog } from "./edit-collection-dialog"
 import { SearchBar } from "./search-bar"
@@ -86,6 +87,19 @@ export function Dashboard({ userEmail }: DashboardProps) {
     })
     if (res.ok) {
       toast.success("Link saved successfully")
+      mutate(linksUrl)
+      mutate("/api/collections")
+    }
+  }
+
+  const handleUpdateLink = async (data: any) => {
+    const res = await fetch("/api/links", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (res.ok) {
+      toast.success("Link updated successfully")
       mutate(linksUrl)
       mutate("/api/collections")
     }
@@ -383,6 +397,9 @@ export function Dashboard({ userEmail }: DashboardProps) {
                     key={link.id}
                     link={link}
                     onDelete={handleDeleteLink}
+                    onUpdate={handleUpdateLink}
+                    allTags={tags}
+                    onCreateTag={handleCreateTag}
                     onTagClick={handleTagSelect}
                   />
                 ))}

@@ -20,6 +20,9 @@ Un "Segundo Cerebro" minimalista para desarrolladores, enfocado en la indexació
 
 ## ✨ Funcionalidades Implementadas (Marzo 2026)
 - **Extracción Élite de Metadatos**: Lógica avanzada en `/api/metadata` usando `cheerio` para obtener títulos, descripciones, favicons de alta calidad y sugerencias automáticas de etiquetas de programación (Ego Logic).
+- **Gestión de Recursos Élite**: 
+    - CRUD completo de links, incluyendo un diálogo de edición (`EditLinkDialog`) para modificar títulos, descripciones y gestionar etiquetas de forma dinámica.
+    - Eliminación segura de recursos con feedback visual.
 - **Sistema de Colecciones**: CRUD completo para colecciones, incluyendo la capacidad de editar el contenido y la privacidad de las mismas.
 - **Modo Roadmap Público**: Ruta `/share/roadmap/[id]` para visualización anónima de colecciones marcadas como públicas.
 - **UI Responsiva**: Sidebar adaptativo con menú hamburguesa (`Sheet`) y modales optimizados para móvil (anti-overflow).

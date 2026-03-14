@@ -1,20 +1,39 @@
 "use client"
 
-import { ExternalLink, Trash2, Globe } from "lucide-react"
+import { ExternalLink, Trash2, Globe, Pencil } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { EditLinkDialog } from "./edit-link-dialog"
 import type { Link, Tag } from "@/lib/types"
 
 interface LinkCardProps {
   link: Link & { tags?: Tag[] }
   onDelete?: (id: string) => void
+  onUpdate?: (data: { id: string; title: string; description: string; tagIds: string[] }) => Promise<void>
+  onCreateTag?: (name: string) => Promise<Tag | null>
+  allTags?: Tag[]
   onTagClick: (tagName: string) => void
   showActions?: boolean
 }
 
-export function LinkCard({ link, onDelete, onTagClick, showActions = true }: LinkCardProps) {
-  const hostname = new URL(link.url).hostname.replace("www.", "")
+export function LinkCard({ 
+  link, 
+  onDelete, 
+  onUpdate, 
+  onCreateTag, 
+  allTags = [], 
+  onTagClick, 
+  showActions = true 
+}: LinkCardProps) {
+  const getHostname = (url: string) => {
+    try {
+      return new URL(url).hostname.replace("www.", "")
+    } catch {
+      return url
+    }
+  }
+  const hostname = getHostname(link.url)
 
   return (
     <Card className="group hover:border-primary/50 transition-colors">
@@ -70,15 +89,36 @@ export function LinkCard({ link, onDelete, onTagClick, showActions = true }: Lin
               )}
             </div>
           </div>
-          {showActions && onDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 hover:bg-red-50"
-              onClick={() => onDelete(link.id)}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+          {showActions && (
+            <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+              {onUpdate && onCreateTag && (
+                <EditLinkDialog
+                  link={link}
+                  allTags={allTags}
+                  onUpdate={onUpdate}
+                  onCreateTag={onCreateTag}
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="flex-shrink-0 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  }
+                />
+              )}
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0 text-red-400 hover:text-red-600 hover:bg-red-50"
+                  onClick={() => onDelete(link.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </CardContent>

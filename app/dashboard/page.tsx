@@ -1,3 +1,4 @@
+// Trigger rebuild to fix chunk loading issue
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Dashboard } from "@/components/dashboard"

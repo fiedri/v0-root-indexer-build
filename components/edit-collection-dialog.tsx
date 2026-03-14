@@ -226,7 +226,7 @@ export function EditCollectionDialog({
                   
                   <div className="flex flex-wrap gap-1.5 p-2 border rounded-md bg-muted/10 box-border">
                     <Badge 
-                      variant={selectedTagId === null ? "default" : "ghost"}
+                      variant={selectedTagId === null ? "default" : "outline"}
                       className="text-[9px] cursor-pointer h-5 px-2 py-0"
                       onClick={() => setSelectedTagId(null)}
                     >

@@ -123,3 +123,27 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .scrollbar-thin-gray {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
+
+  .scrollbar-thin-gray::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-thin-gray::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin-gray::-webkit-scrollbar-thumb {
+    background-color: oklch(0.6 0 0 / 0.2);
+    border-radius: 20px;
+  }
+  
+  .scrollbar-thin-gray::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(0.6 0 0 / 0.4);
+  }
+}

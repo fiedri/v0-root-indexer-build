@@ -32,10 +32,10 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <aside className={cn(
-      "flex flex-col bg-card/50 p-4 lg:h-screen lg:sticky lg:top-0 overflow-y-auto border-r border-border/50", 
+      "flex flex-col bg-card/50 p-4 lg:h-screen lg:sticky lg:top-0 border-r border-border/50 overflow-hidden", 
       className
     )}>
-      <div className="space-y-6 flex flex-col h-full">
+      <div className="space-y-6 flex flex-col h-full overflow-hidden">
         <div className="shrink-0">
           <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-2">
             Overview
@@ -109,12 +109,12 @@ export function Sidebar({
           </nav>
         </div>
 
-        <div className="flex-1 min-h-0">
-          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-2 flex items-center gap-2">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-2 flex items-center gap-2 shrink-0">
             <Hash className="w-3 h-3" />
             Tags
           </h3>
-          <nav className="space-y-0.5">
+          <nav className="flex-1 overflow-y-auto pr-2 space-y-0.5 scrollbar-thin-gray">
             {tags.length === 0 ? (
               <p className="text-xs text-muted-foreground/60 px-3 py-2 italic">
                 No tags yet.

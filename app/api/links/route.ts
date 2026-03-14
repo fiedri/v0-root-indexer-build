@@ -107,6 +107,67 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(link)
 }
 
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient()
+  
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const body = await request.json()
+  const { id, title, description, tagIds } = body
+
+  if (!id) {
+    return NextResponse.json({ error: "ID required" }, { status: 400 })
+  }
+
+  // Update the link
+  const { error: linkError } = await supabase
+    .from("links")
+    .update({
+      title,
+      description: description || null,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id)
+
+  if (linkError) {
+    return NextResponse.json({ error: linkError.message }, { status: 500 })
+  }
+
+  // Update tags if provided
+  if (tagIds !== undefined) {
+    // Delete existing tags for this link
+    const { error: deleteError } = await supabase
+      .from("link_tags")
+      .delete()
+      .eq("link_id", id)
+
+    if (deleteError) {
+      console.error("Error deleting old tags:", deleteError)
+    }
+
+    // Insert new tags
+    if (tagIds.length > 0) {
+      const linkTags = tagIds.map((tagId: string) => ({
+        link_id: id,
+        tag_id: tagId,
+      }))
+
+      const { error: insertError } = await supabase
+        .from("link_tags")
+        .insert(linkTags)
+
+      if (insertError) {
+        console.error("Error adding new tags:", insertError)
+      }
+    }
+  }
+
+  return NextResponse.json({ success: true })
+}
+
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient()
   const { searchParams } = new URL(request.url)
