@@ -40,10 +40,10 @@ export function LinkCard({ link, onDelete, onTagClick, showActions = true }: Lin
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1 flex items-center gap-1.5"
+                className="font-medium text-foreground hover:text-primary transition-colors flex items-start gap-1.5 break-words"
               >
-                <span className="truncate">{link.title}</span>
-                <ExternalLink className="w-3 h-3 flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity" />
+                <span className="flex-1 min-w-0">{link.title}</span>
+                <ExternalLink className="w-3 h-3 flex-shrink-0 mt-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity" />
               </a>
               <p className="text-sm text-muted-foreground truncate mt-0.5">
                 {hostname}
