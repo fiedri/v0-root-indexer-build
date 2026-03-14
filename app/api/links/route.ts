@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { url, title, description, tagIds, favicon_url } = body
+  const { url, title, description, tagIds, collectionIds, favicon_url } = body
 
   // Insert the link with user_id
   const { data: link, error: linkError } = await supabase
@@ -87,6 +87,20 @@ export async function POST(request: NextRequest) {
 
     if (tagError) {
       console.error("Error adding tags:", tagError)
+    }
+  }
+
+  // Insert collection associations
+  if (collectionIds && collectionIds.length > 0) {
+    const colLinks = collectionIds.map((colId: string) => ({
+      link_id: link.id,
+      collection_id: colId,
+    }))
+
+    const { error: colError } = await supabase.from("collection_links").insert(colLinks)
+
+    if (colError) {
+      console.error("Error adding link to collections:", colError)
     }
   }
 

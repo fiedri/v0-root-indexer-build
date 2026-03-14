@@ -6,6 +6,7 @@ import { Link2, FolderOpen, Share2, Check, ExternalLink, Menu, Plus } from "luci
 import { LinkCard } from "./link-card"
 import { AddLinkDialog } from "./add-link-dialog"
 import { AddCollectionDialog } from "./add-collection-dialog"
+import { EditCollectionDialog } from "./edit-collection-dialog"
 import { SearchBar } from "./search-bar"
 import { Sidebar } from "./sidebar"
 import { UserMenu } from "./user-menu"
@@ -21,12 +22,18 @@ interface DashboardProps {
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 export function Dashboard({ userEmail }: DashboardProps) {
+  const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null)
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Prevenir errores de hidratación esperando al montaje
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -62,35 +69,56 @@ export function Dashboard({ userEmail }: DashboardProps) {
   }, [allLinks, selectedCollectionId, selectedCollection, debouncedSearch, selectedTags])
 
   const handleAddLink = async (data: any) => {
-    await fetch("/api/links", {
+    const res = await fetch("/api/links", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
-    mutate(linksUrl)
-    mutate("/api/collections")
+    if (res.ok) {
+      toast.success("Link saved successfully")
+      mutate(linksUrl)
+      mutate("/api/collections")
+    }
   }
 
   const handleAddCollection = async (data: any) => {
-    await fetch("/api/collections", {
+    const res = await fetch("/api/collections", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
-    mutate("/api/collections")
-    toast.success("Collection created")
+    if (res.ok) {
+      toast.success("Collection created")
+      mutate("/api/collections")
+    }
+  }
+
+  const handleEditCollection = async (id: string, data: any) => {
+    const res = await fetch("/api/collections", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, ...data }),
+    })
+    if (res.ok) {
+      toast.success("Collection updated")
+      mutate("/api/collections")
+    }
   }
 
   const handleDeleteLink = async (id: string) => {
-    await fetch(`/api/links?id=${id}`, { method: "DELETE" })
-    mutate(linksUrl)
-    mutate("/api/collections")
+    const res = await fetch(`/api/links?id=${id}`, { method: "DELETE" })
+    if (res.ok) {
+      mutate(linksUrl)
+      mutate("/api/collections")
+    }
   }
 
   const handleDeleteTag = async (id: string) => {
-    await fetch(`/api/tags?id=${id}`, { method: "DELETE" })
-    mutate("/api/tags")
-    mutate(linksUrl)
+    const res = await fetch(`/api/tags?id=${id}`, { method: "DELETE" })
+    if (res.ok) {
+      mutate("/api/tags")
+      mutate(linksUrl)
+    }
   }
 
   const handleCreateTag = async (name: string): Promise<Tag | null> => {
@@ -115,7 +143,7 @@ export function Dashboard({ userEmail }: DashboardProps) {
 
   const handleCollectionSelect = (id: string | null) => {
     setSelectedCollectionId(id)
-    setIsMobileMenuOpen(false) // Cierra el menú en móvil tras seleccionar
+    setIsMobileMenuOpen(false)
   }
 
   const copyShareLink = (id: string) => {
@@ -145,16 +173,19 @@ export function Dashboard({ userEmail }: DashboardProps) {
     onCollectionSelect: handleCollectionSelect,
   }
 
+  // No renderizar hasta que el cliente esté listo para evitar ID mismatches
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />
+  }
+
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Sidebar Desktop */}
-      <Sidebar {...sidebarProps} className="hidden lg:block w-64 border-r" />
+      <Sidebar {...sidebarProps} className="hidden lg:flex w-64 border-r" />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 sm:px-6">
+        <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 sm:px-6 shrink-0">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
-              {/* Menu Trigger Mobile */}
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="lg:hidden shrink-0">
@@ -162,7 +193,7 @@ export function Dashboard({ userEmail }: DashboardProps) {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 w-72">
-                  <SheetTitle className="sr-only">Menu de Navegación</SheetTitle>
+                  <SheetTitle className="sr-only">Navegación</SheetTitle>
                   <Sidebar {...sidebarProps} className="w-full h-full border-none" />
                 </SheetContent>
               </Sheet>
@@ -172,26 +203,54 @@ export function Dashboard({ userEmail }: DashboardProps) {
                   <Link2 className="w-4 h-4 text-primary" />
                 </div>
                 <div className="truncate">
-                  <h1 className="text-sm sm:text-lg font-semibold text-foreground truncate leading-tight">
-                    {selectedCollection ? selectedCollection.name : "ROOT Indexer"}
+                  <h1 className="text-sm sm:text-lg font-semibold text-foreground truncate leading-tight flex items-center gap-2">
+                    {selectedCollection ? selectedCollection.name : "The ROOT Indexer"}
+                    {selectedCollection && (
+                      <EditCollectionDialog 
+                        collection={selectedCollection}
+                        links={allLinks}
+                        tags={tags}
+                        onEditCollection={handleEditCollection}
+                      />
+                    )}
                   </h1>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-              <div className="hidden sm:flex items-center gap-2">
-                <AddCollectionDialog links={allLinks} tags={tags} onAddCollection={handleAddCollection} />
-                <AddLinkDialog tags={tags} onAddLink={handleAddLink} onCreateTag={handleCreateTag} />
-              </div>
-              
-              {/* Botón flotante o compacto en móvil para añadir */}
-              <div className="sm:hidden">
-                <AddLinkDialog 
-                  tags={tags} 
-                  onAddLink={handleAddLink} 
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {selectedCollection?.is_public && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 h-9 px-2 sm:px-3"
+                    onClick={() => copyShareLink(selectedCollection.id)}
+                  >
+                    {copiedId === selectedCollection.id ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                    <span className="hidden sm:inline">Share</span>
+                  </Button>
+                )}
+                
+                <div className="hidden sm:block">
+                  <AddCollectionDialog
+                    links={allLinks}
+                    tags={tags}
+                    onAddCollection={handleAddCollection}
+                  />
+                </div>
+
+                <AddLinkDialog
+                  tags={tags}
+                  collections={collections}
+                  onAddLink={handleAddLink}
                   onCreateTag={handleCreateTag}
-                  trigger={<Button size="icon" className="rounded-full w-8 h-8"><Plus className="w-4 h-4" /></Button>}
+                  trigger={
+                    <Button size="sm" className="h-9 px-2 sm:px-4">
+                      <Plus className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Add Link</span>
+                    </Button>
+                  }
                 />
               </div>
 
@@ -221,13 +280,15 @@ export function Dashboard({ userEmail }: DashboardProps) {
               <div className="text-center py-12 sm:py-20 bg-card/30 rounded-xl border border-dashed">
                 <FolderOpen className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-20" />
                 <h3 className="text-sm font-medium text-foreground">No links found</h3>
-                <p className="text-xs text-muted-foreground mt-1">Try changing filters or search terms</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {selectedCollectionId ? "This collection is empty." : "Your library is empty."}
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {filteredLinks.length} {filteredLinks.length === 1 ? "Result" : "Results"}
+                    {filteredLinks.length} {filteredLinks.length === 1 ? "Link" : "Links"}
                   </p>
                   {selectedCollectionId && selectedCollection?.is_public && (
                     <Button variant="link" size="sm" asChild className="h-auto p-0 text-[10px] sm:text-xs text-primary">
