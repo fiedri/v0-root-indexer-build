@@ -105,6 +105,19 @@ export function Dashboard({ userEmail }: DashboardProps) {
     }
   }
 
+  const handleDeleteCollection = async (id: string) => {
+    const res = await fetch(`/api/collections?id=${id}`, {
+      method: "DELETE",
+    })
+    if (res.ok) {
+      toast.success("Collection deleted")
+      setSelectedCollectionId(null)
+      mutate("/api/collections")
+    } else {
+      toast.error("Failed to delete collection")
+    }
+  }
+
   const handleDeleteLink = async (id: string) => {
     const res = await fetch(`/api/links?id=${id}`, { method: "DELETE" })
     if (res.ok) {
@@ -173,7 +186,6 @@ export function Dashboard({ userEmail }: DashboardProps) {
     onCollectionSelect: handleCollectionSelect,
   }
 
-  // No renderizar hasta que el cliente esté listo para evitar ID mismatches
   if (!mounted) {
     return <div className="min-h-screen bg-background" />
   }
@@ -211,6 +223,7 @@ export function Dashboard({ userEmail }: DashboardProps) {
                         links={allLinks}
                         tags={tags}
                         onEditCollection={handleEditCollection}
+                        onDeleteCollection={handleDeleteCollection}
                       />
                     )}
                   </h1>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Pencil, Check, Search } from "lucide-react"
+import { Pencil, Check, Search, Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -43,11 +43,19 @@ interface EditCollectionDialogProps {
   links: LinkType[]
   tags: Tag[]
   onEditCollection: (id: string, data: z.infer<typeof formSchema>) => Promise<void>
+  onDeleteCollection: (id: string) => Promise<void>
 }
 
-export function EditCollectionDialog({ collection, links, tags, onEditCollection }: EditCollectionDialogProps) {
+export function EditCollectionDialog({ 
+  collection, 
+  links, 
+  tags, 
+  onEditCollection,
+  onDeleteCollection 
+}: EditCollectionDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [linkSearch, setLinkSearch] = useState("")
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null)
 
@@ -61,7 +69,6 @@ export function EditCollectionDialog({ collection, links, tags, onEditCollection
     },
   })
 
-  // Update form when collection changes
   useEffect(() => {
     if (open) {
       form.reset({
@@ -91,10 +98,20 @@ export function EditCollectionDialog({ collection, links, tags, onEditCollection
     try {
       await onEditCollection(collection.id, values)
       setOpen(false)
-    } catch (error) {
-      console.error(error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm("Are you sure you want to delete this collection? Links inside will not be deleted.")) return
+    
+    setIsDeleting(true)
+    try {
+      await onDeleteCollection(collection.id)
+      setOpen(false)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -117,10 +134,24 @@ export function EditCollectionDialog({ collection, links, tags, onEditCollection
       
       <DialogContent className="max-w-[95vw] sm:max-w-[500px] max-h-[85vh] flex flex-col p-0 overflow-hidden box-border shadow-2xl">
         <DialogHeader className="p-5 pb-3 border-b bg-background shrink-0">
-          <DialogTitle className="text-lg font-bold">Edit Collection</DialogTitle>
-          <DialogDescription className="text-xs">
-            Update your roadmap or collection details.
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-lg font-bold">Edit Collection</DialogTitle>
+              <DialogDescription className="text-xs">
+                Update collection details or manage links.
+              </DialogDescription>
+            </div>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="icon" 
+              className="text-destructive hover:bg-destructive/10"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
         </DialogHeader>
 
         <Form {...form}>
@@ -261,11 +292,11 @@ export function EditCollectionDialog({ collection, links, tags, onEditCollection
                 variant="ghost" 
                 size="sm"
                 onClick={() => setOpen(false)}
-                disabled={isLoading}
+                disabled={isLoading || isDeleting}
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={isLoading} className="min-w-[120px] shadow-sm">
+              <Button type="submit" size="sm" disabled={isLoading || isDeleting} className="min-w-[120px] shadow-sm">
                 {isLoading ? "Saving..." : "Update Collection"}
               </Button>
             </DialogFooter>
