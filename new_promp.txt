@@ -1,0 +1,27 @@
+Contexto: Necesito evolucionar "The ROOT Indexer" para que los usuarios puedan agrupar links en "Colecciones" (ej. un Roadmap de Rust) y compartirlas de forma pública o privada.
+
+Nuevos Requerimientos de Base de Datos (Supabase):
+
+Tabla collections: Debe tener id, user_id, name, description, is_public (boolean) y created_at.
+
+Relación Many-to-Many: Crea una tabla intermedia collection_links que conecte collection_id con link_id.
+
+RLS de Élite: Las políticas deben asegurar que:
+
+Solo el dueño puede crear/editar/borrar sus colecciones.
+
+Cualquier usuario (incluso anónimo) puede hacer SELECT de una colección y sus links asociados solo si is_public es TRUE.
+
+Funcionalidades de Interfaz:
+
+Creador de Colecciones: Una sección en el dashboard para crear una colección, ponerle nombre y seleccionar qué links de mi biblioteca quiero incluir en ella.
+
+Modo Roadmap: Opción para marcar una colección como pública y generar un enlace único (ej. /share/roadmap/[id]).
+
+Vista Pública de Roadmap: Una página limpia donde cualquier invitado pueda ver la lista de links de esa colección, filtrarlos por etiquetas y ver la descripción del roadmap.
+
+Branding Estratégico: - El footer "Developed by Friedrich Ruiz" debe aparecer únicamente en la Landing Page (Página principal/Login) y en las vistas públicas de Roadmaps.
+
+En el Dashboard privado, mantén el enfoque 100% en el usuario.
+
+Estética: Sigue el estilo "Stark Pristine". Las colecciones deben verse como carpetas inteligentes o secciones destacadas en el dashboard.
