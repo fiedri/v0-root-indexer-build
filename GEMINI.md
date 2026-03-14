@@ -25,6 +25,7 @@ Un "Segundo Cerebro" minimalista para desarrolladores, enfocado en la indexació
 - **Modo Roadmap Público**: Ruta `/share/roadmap/[id]` para visualización anónima de colecciones marcadas como públicas.
 - **UI Responsiva**: Sidebar adaptativo con menú hamburguesa (`Sheet`) y modales optimizados para móvil (anti-overflow).
 - **Gestión de Etiquetas**: Capacidad de crear y eliminar etiquetas directamente desde el sidebar.
+- **Eliminación de Cuenta**: Opción segura en el menú de usuario para borrar permanentemente la cuenta y todos sus datos (usando Supabase Admin API).
 
 ## 🛠️ Notas para el Desarrollador
 - **Seguridad**: Siempre verificar las políticas RLS al añadir nuevas tablas. Los links en colecciones públicas deben ser visibles para usuarios anónimos.

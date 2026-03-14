@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import useSWR, { mutate } from "swr"
-import { Link2, FolderOpen, Share2, Check, ExternalLink, Menu, Plus } from "lucide-react"
+import { Link2, FolderOpen, Share2, Check, ExternalLink, Menu, Plus, Globe, Lock } from "lucide-react"
 import { LinkCard } from "./link-card"
 import { AddLinkDialog } from "./add-link-dialog"
 import { AddCollectionDialog } from "./add-collection-dialog"
@@ -11,6 +11,8 @@ import { SearchBar } from "./search-bar"
 import { Sidebar } from "./sidebar"
 import { UserMenu } from "./user-menu"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { toast } from "sonner"
 import type { Link, Tag, Collection } from "@/lib/types"
@@ -113,8 +115,6 @@ export function Dashboard({ userEmail }: DashboardProps) {
       toast.success("Collection deleted")
       setSelectedCollectionId(null)
       mutate("/api/collections")
-    } else {
-      toast.error("Failed to delete collection")
     }
   }
 
@@ -163,7 +163,7 @@ export function Dashboard({ userEmail }: DashboardProps) {
     const url = `${window.location.origin}/share/roadmap/${id}`
     navigator.clipboard.writeText(url)
     setCopiedId(id)
-    toast.success("Link copied")
+    toast.success("Link copied to clipboard")
     setTimeout(() => setCopiedId(null), 2000)
   }
 
@@ -214,7 +214,20 @@ export function Dashboard({ userEmail }: DashboardProps) {
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                   <Link2 className="w-4 h-4 text-primary" />
                 </div>
-                <div className="truncate">
+                <div className="truncate flex flex-col">
+                  {selectedCollection && (
+                    <div className="flex items-center gap-1 mb-0.5">
+                      {selectedCollection.is_public ? (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 py-0 text-primary border-primary/30 bg-primary/5 uppercase font-bold flex items-center gap-0.5">
+                          <Globe className="w-2.5 h-2.5" /> Public
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 py-0 text-muted-foreground border-muted-foreground/30 uppercase font-bold flex items-center gap-0.5">
+                          <Lock className="w-2.5 h-2.5" /> Private
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                   <h1 className="text-sm sm:text-lg font-semibold text-foreground truncate leading-tight flex items-center gap-2">
                     {selectedCollection ? selectedCollection.name : "The ROOT Indexer"}
                     {selectedCollection && (
@@ -233,11 +246,14 @@ export function Dashboard({ userEmail }: DashboardProps) {
 
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                {selectedCollection?.is_public && (
+                {selectedCollection && (
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="gap-2 h-9 px-2 sm:px-3"
+                    className={cn(
+                      "gap-2 h-9 px-2 sm:px-3 transition-all",
+                      selectedCollection.is_public ? "border-primary/30 text-primary hover:bg-primary/5" : ""
+                    )}
                     onClick={() => copyShareLink(selectedCollection.id)}
                   >
                     {copiedId === selectedCollection.id ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
@@ -259,7 +275,7 @@ export function Dashboard({ userEmail }: DashboardProps) {
                   onAddLink={handleAddLink}
                   onCreateTag={handleCreateTag}
                   trigger={
-                    <Button size="sm" className="h-9 px-2 sm:px-4">
+                    <Button size="sm" className="h-9 px-2 sm:px-4 shadow-sm">
                       <Plus className="w-4 h-4 sm:mr-2" />
                       <span className="hidden sm:inline">Add Link</span>
                     </Button>

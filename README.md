@@ -38,6 +38,7 @@ Crea un archivo `.env.local` en la raíz con tus credenciales de Supabase:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key_de_supabase
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key (requerido para borrar cuenta)
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/dashboard
 ```
 
